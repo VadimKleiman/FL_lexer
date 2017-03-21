@@ -41,20 +41,6 @@ public:
 	}
 	void print() {
 		std::cout << toString();
-		// switch(type)
-    	// {
-        // 	case KW_READ:   std::cout << "KW_READ";      break;
-        // 	case KW_IF:     std::cout << "KW_IF";        break;
-        // 	case KW_THEN:   std::cout << "KW_THEN";      break;
-        // 	case KW_ELSE:   std::cout << "KW_ELSE";      break;
-        // 	case KW_WRITE:  std::cout << "KW_WRITE";     break;
-        // 	case KW_BEGIN:  std::cout << "KW_BEGIN";     break;
-        // 	case KW_END:    std::cout << "KW_END";       break;
-        // 	case KW_WHILE:  std::cout << "KW_WHILE";     break;
-        // 	case KW_DO:     std::cout << "KW_DO";        break; 
-        // 	default:	break;
-    	// }
-       	// std::cout << "(" << current_line << ", " << current_pos << ", " << (current_pos + offset) << ");";
 	}
 	std::string toString() {
 		std::string out;
@@ -92,7 +78,6 @@ public:
 	}
 	void print() {
 		std::cout << toString();
-		// std::cout << "IDENT(" << name << ", " << current_line << ", " << current_pos << ", " << (current_pos + offset) << ");";
 	}
 	std::string toString() {
 		std::string out;
@@ -133,24 +118,6 @@ public:
 	}
 	void print() {
 		std::cout << toString();
-		// std::cout << "OP(";
-		// switch(type) {
-		// 	case EQ:	std::cout << "EQ";	break;
-		// 	case L: 	std::cout << "L";	break;
-		// 	case G:		std::cout << "G";	break;
-		// 	case LE:	std::cout << "LE";	break;
-		// 	case GE:	std::cout << "GE";	break;
-		// 	case NE:	std::cout << "NE";	break;
-		// 	case ADD:	std::cout << "ADD";	break;
-		// 	case SUB:	std::cout << "SUB";	break;
-		// 	case MUL:	std::cout << "MUL";	break;
-		// 	case DIV:	std::cout << "DIV";	break;
-		// 	case MOD:	std::cout << "MOD";	break;
-		// 	case AND:	std::cout << "AND";	break;
-		// 	case OR:	std::cout << "OR";	break;
-		// 	default:	break;
-		// }
-		// std::cout << ", " << current_line << ", " << current_pos << ", " << (current_pos + offset) + ");";
 	}
 	std::string toString() {
 		std::string out;
@@ -192,7 +159,6 @@ public:
 	}
 	void print() {
 		std::cout << toString();
-		// std::cout << "VALUE(" << val << ", " << current_line << ", " << current_pos << ", " << (current_pos + offset) << ");";
 	}
 	std::string toString() {
 		std::string out;
@@ -216,7 +182,6 @@ public:
 	}
 	void print() {
 		std::cout << toString();
-        // std::cout << "SEPARATOR(" << current_line << ", " << current_pos << ", " << (current_pos + offset) << ");";
     }
 	
 	std::string toString() {
@@ -242,7 +207,6 @@ public:
 	}
 	void print() {
 		std::cout << toString();
-        // std::cout << "COMMENT(" << comm << ", " << current_line << ", " << current_pos << ", " << (current_pos + offset) << ");";
     }
 	
 	std::string toString() {
