@@ -17,7 +17,10 @@ void succ_current_pos(unsigned int mult)
 void clear_current_pos() {
 	current_line_number = current_pos = 0;
 }
-
+void yyerror (const string s) {
+	cerr << s << endl;
+    exit(-1);
+}
 %}
 
 %%
@@ -131,6 +134,9 @@ do		{key_word* kw = new key_word(KW_DO, current_line_number, current_pos, strlen
 		tokens.push_back(oprt);
 		succ_current_pos(1);
 		}
+.|\n    {
+		yyerror("Unrecognized string! (" + string(yytext) + ", " + to_string(current_line_number) + ", " + to_string(current_pos) + ")");
+		}
 %%
 void print(){
 	for(const auto &i : tokens){
@@ -138,6 +144,8 @@ void print(){
 	}
 	cout << endl;
 }
+
+
 #ifdef TEST
 extern void test();
 #endif
