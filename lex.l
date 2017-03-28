@@ -6,6 +6,8 @@
 
 using namespace std;
 
+unsigned int level = 0;
+string ml_comment;
 unsigned int current_line_number = 0;
 unsigned int current_pos = 0;
 vector<base*> tokens;
@@ -23,7 +25,46 @@ void yyerror (const string s) {
 }
 %}
 
+%x c_comment
+
 %%
+"(*" 					{
+						if (level == 0)
+							BEGIN(c_comment);
+						level++;
+						ml_comment += string(yytext);
+						}
+<c_comment><<EOF>>		{ yyerror("Unrecognized comment!"); }
+<c_comment>"\n"			{
+						ml_comment += " ";
+						++current_line_number;
+						current_pos = 0;
+						}
+<c_comment>"(*"			{
+						level++;
+						ml_comment += string(yytext);
+						}
+<c_comment>"("+[^*\n]*	{
+						ml_comment += string(yytext);
+						}
+<c_comment>[^(*\n]*     {
+						ml_comment += string(yytext);
+						}
+<c_comment>"*)"			{
+						ml_comment += string(yytext);
+						level--;
+						if (level == 0)
+						{
+							mlcomment* mlc = new mlcomment(ml_comment);
+							tokens.push_back(mlc);
+							BEGIN(INITIAL);
+							ml_comment = "";
+						}	
+						}
+<c_comment>.|\n 		{
+						ml_comment += string(yytext);
+						}
+
 read 	{ key_word* kw = new key_word(KW_READ, current_line_number, current_pos, strlen(yytext) - 1);
 		tokens.push_back(kw);
 		succ_current_pos(1);
@@ -65,6 +106,7 @@ do		{key_word* kw = new key_word(KW_DO, current_line_number, current_pos, strlen
 		tokens.push_back(kw);
 		succ_current_pos(1);
 		}
+
 "//"[^\n]+	{comment* cm = new comment(string(yytext), current_line_number, current_pos, strlen(yytext) - 1);
 			tokens.push_back(cm);
 			succ_current_pos(1);
@@ -95,6 +137,11 @@ do		{key_word* kw = new key_word(KW_DO, current_line_number, current_pos, strlen
 		succ_current_pos(1);
 		}
 "%"		{op* oprt = new op(MOD, current_line_number, current_pos, strlen(yytext) - 1);
+		tokens.push_back(oprt);
+		succ_current_pos(1);
+		}
+"**"	{
+		op* oprt = new op(POW, current_line_number, current_pos, strlen(yytext) - 1);
 		tokens.push_back(oprt);
 		succ_current_pos(1);
 		}
@@ -134,13 +181,28 @@ do		{key_word* kw = new key_word(KW_DO, current_line_number, current_pos, strlen
 		tokens.push_back(oprt);
 		succ_current_pos(1);
 		}
+":="	{
+		op* oprt = new op(ASSIGN, current_line_number, current_pos, strlen(yytext) - 1);
+		tokens.push_back(oprt);
+		succ_current_pos(1);
+		}
 .|\n    {
 		yyerror("Unrecognized string! (" + string(yytext) + ", " + to_string(current_line_number) + ", " + to_string(current_pos) + ")");
 		}
 %%
+
+bool filter = false;
+
 void print(){
 	for(const auto &i : tokens){
-			i->print();
+		if (filter == true)
+		{
+			if (!(dynamic_cast<mlcomment*>(i) || dynamic_cast<comment*>(i)))
+			{
+				i->print();
+			}
+		}
+		else i->print();
 	}
 	cout << endl;
 }
@@ -153,17 +215,20 @@ int main(int argc, char *argv[]) {
 	#ifdef TEST
 	test();
 	#else
-	if (argc == 2)
+	for(int i = 1; i < argc; ++i)
 	{
-		yyin = fopen(argv[1], "r");
-		yylex();
-		print();
-		fclose(yyin);
+		if (string(argv[i]) == "-filter") 
+		{
+			filter = true;
+		}
+		else
+		{
+			yyin = fopen(argv[i], "r");
+		}
 	}
-	else {
-		yylex();
-		print();
-	}
+	yylex();
+	print();
+	fclose(yyin);
 	#endif
 	return 0;
 }

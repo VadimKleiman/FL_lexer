@@ -35,6 +35,7 @@ void test_ident()
 	for (int i = 0; i < check.size(); ++i) {
 		if (tokens[i]->toString() != check[i]->toString()) {
 			cout << "NO" << endl;
+			cout << tokens[i]->toString() << endl << check[i]->toString() << endl;
 			return;
 		}
 	}
@@ -59,6 +60,7 @@ void test_comment() {
 	for (int i = 0; i < check.size(); ++i) {
 		if (tokens[i]->toString() != check[i]->toString()) {
 			cout << "NO" << endl;
+			cout << tokens[i]->toString() << endl << check[i]->toString() << endl;
 			return;
 		}
 	}
@@ -88,6 +90,7 @@ void test_kw() {
 	for (int i = 0; i < check.size(); ++i) {
 		if (tokens[i]->toString() != check[i]->toString()) {
 			cout << "NO" << endl;
+			cout << tokens[i]->toString() << endl << check[i]->toString() << endl;
 			return;
 		}
 	}
@@ -123,6 +126,7 @@ void test_expr() {
 	for (int i = 0; i < check.size(); ++i) {
 		if (tokens[i]->toString() != check[i]->toString()) {
 			cout << "NO" << endl;
+			cout << tokens[i]->toString() << endl << check[i]->toString() << endl;
 			return;
 		}
 	}
@@ -131,7 +135,7 @@ void test_expr() {
 void test_op() {
 	tokens.clear();
 	clear_current_pos();
-	yy_scan_string("+ - * / % == != > >= < <= && ||");
+	yy_scan_string("+ - * / % == != > >= < <= && || ** :=");
 	yylex();
 	cout << endl << "TEST OPERATORS : ";
 	vector<base*> check;
@@ -148,6 +152,8 @@ void test_op() {
 	check.push_back(new op(LE, 0, 23, 1));
 	check.push_back(new op(AND, 0, 26, 1));
 	check.push_back(new op(OR, 0, 29, 1));	
+	check.push_back(new op(POW, 0, 32, 1));
+	check.push_back(new op(ASSIGN, 0, 35, 1));
 	if (tokens.size() != check.size()) {
 		cout << "NO" << endl;
 		return;
@@ -155,10 +161,41 @@ void test_op() {
 	for (int i = 0; i < check.size(); ++i) {
 		if (tokens[i]->toString() != check[i]->toString()) {
 			cout << "NO" << endl;
+			cout << tokens[i]->toString() << endl << check[i]->toString() << endl;
 			return;
 		}
 	}
 	cout << "YES" << endl;
+}
+
+void test_mlcomment()
+{
+	tokens.clear();
+	clear_current_pos();
+	yy_scan_string("(*Hello!)***Hi...*) (*He)(llo\nHi\n*) x:=1 (*Hello\n(*HI\n(*World!*)*)!!!*) (***(***)***)");
+	yylex();
+	cout << endl << "TEST ML_COMMENT : ";
+	vector<base*> check;
+	check.push_back(new mlcomment("(*Hello!)***Hi...*)"));
+	check.push_back(new mlcomment("(*He)(llo Hi *)"));
+	check.push_back(new ident("x", 2, 1, 0));
+	check.push_back(new op(ASSIGN, 2, 2, 1));
+	check.push_back(new value("1", 2, 4, 0));
+	check.push_back(new mlcomment("(*Hello (*HI (*World!*)*)!!!*)"));
+	check.push_back(new mlcomment("(***(***)***)"));
+	if (tokens.size() != check.size()) {
+		cout << "NO" << endl;
+		return;
+	}
+	for (int i = 0; i < check.size(); ++i) {
+		if (tokens[i]->toString() != check[i]->toString()) {
+			cout << "NO" << endl;
+			cout << tokens[i]->toString() << endl << check[i]->toString() << endl;
+			return;
+		}
+	}
+	cout << "YES" << endl;
+
 }
 void test()
 {
@@ -167,5 +204,6 @@ void test()
 	test_kw();
 	test_op();
 	test_expr();
+	test_mlcomment();
 }
 #endif

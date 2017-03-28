@@ -100,6 +100,8 @@ typedef enum {
 	MOD,
 	AND,
 	OR,
+	POW,
+	ASSIGN
 } op_type;
 
 class op : public base {
@@ -136,6 +138,8 @@ public:
 			case MOD:	out +=  "MOD";	break;
 			case AND:	out +=  "AND";	break;
 			case OR:	out +=  "OR";	break;
+			case POW:	out +=  "POW";	break;
+			case ASSIGN:	out += "ASSIGN"; break;
 			default:	break;
 		}
 		out += ", " + std::to_string(current_line) + ", " + std::to_string(current_pos) + ", " + std::to_string(current_pos + offset) + ");";
@@ -214,6 +218,26 @@ public:
 		out += "COMMENT(" + comm + ", " + std::to_string(current_line) + ", " + std::to_string(current_pos) + ", " + std::to_string(current_pos + offset) + ");";
 		return out;
 	}
+};
+
+class mlcomment : public base {
+private:
+	std::string comm;
+public:
+	mlcomment(const std::string& comm)
+			: comm(comm)
+		{
+		}
+	void print() {
+		std::cout << toString();
+	}
+	
+	std::string toString() {
+		std::string out;
+		out += "ML_COMMENT(" + comm + ");";
+		return out;
+	}
+
 };
 
 #endif //DATA_H_
