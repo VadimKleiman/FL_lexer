@@ -176,13 +176,13 @@ void test_mlcomment()
 	yylex();
 	cout << endl << "TEST ML_COMMENT : ";
 	vector<base*> check;
-	check.push_back(new mlcomment("(*Hello!)***Hi...*)"));
-	check.push_back(new mlcomment("(*He)(llo Hi *)"));
-	check.push_back(new ident("x", 2, 1, 0));
-	check.push_back(new op(ASSIGN, 2, 2, 1));
-	check.push_back(new value("1", 2, 4, 0));
-	check.push_back(new mlcomment("(*Hello (*HI (*World!*)*)!!!*)"));
-	check.push_back(new mlcomment("(***(***)***)"));
+	check.push_back(new mlcomment("Hello!)***Hi...", 0, 0, 0, 19));
+	check.push_back(new mlcomment("He)(llo\\nHi\\n", 0, 20, 2, 2));
+	check.push_back(new ident("x", 2, 3, 0));
+	check.push_back(new op(ASSIGN, 2, 4, 1));
+	check.push_back(new value("1", 2, 6, 0));
+	check.push_back(new mlcomment("Hello\\n(*HI\\n(*World!*)*)!!!", 2, 8, 4, 17));
+	check.push_back(new mlcomment("**(***)**", 4, 18, 4, 31));
 	if (tokens.size() != check.size()) {
 		cout << "NO" << endl;
 		return;

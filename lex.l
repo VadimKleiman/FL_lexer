@@ -8,6 +8,8 @@ using namespace std;
 
 unsigned int level = 0;
 string ml_comment;
+unsigned int start_line_number = 0;
+unsigned int start_pos = 0;
 unsigned int current_line_number = 0;
 unsigned int current_pos = 0;
 vector<base*> tokens;
@@ -29,39 +31,50 @@ void yyerror (const string s) {
 
 %%
 "(*" 					{
+						start_pos = current_pos;
+						start_line_number = current_line_number;
 						if (level == 0)
 							BEGIN(c_comment);
 						level++;
-						ml_comment += string(yytext);
+						succ_current_pos(1);
 						}
 <c_comment><<EOF>>		{ yyerror("Unrecognized comment!"); }
 <c_comment>"\n"			{
-						ml_comment += " ";
+						ml_comment += "\\n";
 						++current_line_number;
+						current_pos = 0;
 						current_pos = 0;
 						}
 <c_comment>"(*"			{
+						succ_current_pos(1);
 						level++;
 						ml_comment += string(yytext);
 						}
 <c_comment>"("+[^*\n]*	{
+						succ_current_pos(1);
 						ml_comment += string(yytext);
 						}
 <c_comment>[^(*\n]*     {
+						succ_current_pos(1);
 						ml_comment += string(yytext);
 						}
 <c_comment>"*)"			{
-						ml_comment += string(yytext);
+						succ_current_pos(1);
 						level--;
 						if (level == 0)
 						{
-							mlcomment* mlc = new mlcomment(ml_comment);
+							mlcomment* mlc = new mlcomment(ml_comment, start_line_number, start_pos, current_line_number, current_pos);
 							tokens.push_back(mlc);
 							BEGIN(INITIAL);
 							ml_comment = "";
-						}	
+						}
+						else
+						{
+							ml_comment += string(yytext);
+						}
 						}
 <c_comment>.|\n 		{
+						succ_current_pos(1);
 						ml_comment += string(yytext);
 						}
 

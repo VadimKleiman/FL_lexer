@@ -223,9 +223,17 @@ public:
 class mlcomment : public base {
 private:
 	std::string comm;
+	unsigned int    start_line;
+    unsigned int    start_pos;
+	unsigned int    end_line;
+    unsigned int    end_pos;
 public:
-	mlcomment(const std::string& comm)
+	mlcomment(const std::string& comm, unsigned int start_line, unsigned int start_pos, unsigned int end_line, unsigned int end_pos)
 			: comm(comm)
+			, start_line(start_line)
+			, start_pos(start_pos)
+			, end_line(end_line)
+			, end_pos(end_pos)
 		{
 		}
 	void print() {
@@ -234,7 +242,7 @@ public:
 	
 	std::string toString() {
 		std::string out;
-		out += "ML_COMMENT(" + comm + ");";
+		out += "ML_COMMENT(" + comm + ", " + std::to_string(start_line) + ", " + std::to_string(start_pos) + ", " + std::to_string(end_line) + ", " + std::to_string(end_pos) + ");";
 		return out;
 	}
 
