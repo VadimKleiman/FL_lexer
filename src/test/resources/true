@@ -1,0 +1,1 @@
+read (x); read (y); while (x) do begin read (x) (*test*) end
