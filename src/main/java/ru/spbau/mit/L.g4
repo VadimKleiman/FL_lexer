@@ -49,9 +49,11 @@ statement : PASS
             | writeStatement
             | readStatement
             | selectionStatement;
+statementMode   : statement
+                | BEGIN statement (SEMICOLON statement)* END;
 assignStatement : ID ASSIGN exprStatement;
-selectionStatement : WHILE LEFT exprStatement RIGHT DO BEGIN statement END
-                    | IF LEFT exprStatement RIGHT THEN statement ELSE BEGIN statement END;
+selectionStatement : WHILE LEFT exprStatement RIGHT DO statementMode
+                    | IF LEFT exprStatement RIGHT THEN statementMode ELSE statementMode;
 exprStatement : LEFT exprStatement RIGHT
         | <assoc=right> exprStatement POW exprStatement
         | exprStatement op=(MUL | DIV | MOD) exprStatement

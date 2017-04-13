@@ -28,6 +28,16 @@ public interface LListener extends ParseTreeListener {
 	 */
 	void exitStatement(LParser.StatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link LParser#statementMode}.
+	 * @param ctx the parse tree
+	 */
+	void enterStatementMode(LParser.StatementModeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LParser#statementMode}.
+	 * @param ctx the parse tree
+	 */
+	void exitStatementMode(LParser.StatementModeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link LParser#assignStatement}.
 	 * @param ctx the parse tree
 	 */
