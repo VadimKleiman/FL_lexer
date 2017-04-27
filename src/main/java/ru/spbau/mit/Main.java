@@ -1,18 +1,22 @@
 package ru.spbau.mit;
 
+import org.abego.treelayout.TreeForTreeLayout;
 import org.antlr.v4.gui.TreeTextProvider;
-import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.TerminalNode;
-import org.antlr.v4.runtime.tree.Tree;
+import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.gui.TreeViewer;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+
+import javax.naming.LinkLoopException;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 class Labels implements TreeTextProvider {
     public String getText(Tree node) {
@@ -24,15 +28,11 @@ class Labels implements TreeTextProvider {
             String name = LLexer.VOCABULARY.getSymbolicName(nodeSymbol.getType());
             int type = nodeSymbol.getType();
             if (type == LLexer.VALUE || type == LLexer.ID || type == LLexer.BOOL) {
-                StringBuilder out = new StringBuilder();
-                out.append(name).append("[").append(nodeSymbol.getText()).append(", ").append(nodeSymbol.getLine()).append(", ").append(nodeSymbol.getStartIndex()).append(", ").append(nodeSymbol.getStartIndex()).append("]");
-                return out.toString();
+                return name + "[" + nodeSymbol.getText() + ", " + nodeSymbol.getLine() + ", " + nodeSymbol.getStartIndex() + ", " + nodeSymbol.getStartIndex() + "]";
             } else if (type == LLexer.EOF) {
                 return "EOF";
             }
-            StringBuilder out = new StringBuilder();
-            out.append(name).append("[").append(nodeSymbol.getLine()).append(", ").append(nodeSymbol.getStartIndex()).append(", ").append(nodeSymbol.getStartIndex()).append("]");
-            return out.toString();
+            return name + "[" + nodeSymbol.getLine() + ", " + nodeSymbol.getStartIndex() + ", " + nodeSymbol.getStartIndex() + "]";
         }
         if (node instanceof RuleContext) {
             int ruleIndex = ((RuleContext) node).getRuleContext().getRuleIndex();
@@ -50,6 +50,63 @@ class Labels implements TreeTextProvider {
         return node.getPayload().toString();
     }
 }
+
+class FilterTree implements TreeForTreeLayout<Tree> {
+    private final Tree root;
+    private final Predicate<Tree> filter;
+
+    private List<Tree> getFilterList(Tree node) {
+        return IntStream.range(0, node.getChildCount())
+                .mapToObj(node::getChild)
+                .filter(filter)
+                .collect(Collectors.toList());
+    }
+
+    public FilterTree(Tree node, Predicate<Tree> filter) {
+        this.root = node;
+        this.filter = filter;
+    }
+
+    @Override
+    public Tree getRoot() {
+        return root;
+    }
+
+    @Override
+    public boolean isLeaf(Tree tree) {
+        return tree == null || tree.getChildCount() == 0;
+    }
+
+    @Override
+    public boolean isChildOfParent(Tree tree, Tree treeNode1) {
+        return tree.getParent() == treeNode1;
+    }
+
+    @Override
+    public Iterable<Tree> getChildren(Tree tree) {
+        return getFilterList(tree);
+    }
+
+    @Override
+    public Iterable<Tree> getChildrenReverse(Tree tree) {
+        List<Tree> children = getFilterList(tree);
+        Collections.reverse(children);
+        return children;
+    }
+
+    @Override
+    public Tree getFirstChild(Tree tree) {
+        List<Tree> children = getFilterList(tree);
+        return children.size() > 0 ? children.get(0) : null;
+    }
+
+    @Override
+    public Tree getLastChild(Tree tree) {
+        List<Tree> children = getFilterList(tree);
+        return children.size() > 0 ? children.get(children.size() - 1) : null;
+    }
+}
+
 public class Main {
 
     public static void main(final String[] args) {
@@ -62,10 +119,27 @@ public class Main {
             LLexer lex = new LLexer(new ANTLRFileStream(args[0]));
             LParser parser = new LParser(new CommonTokenStream(lex));
             ParseTree tree = parser.programm();
-            TreeViewer view = new TreeViewer(null, null);
-            view.setTreeTextProvider(new Labels());
-            view.setTree(tree);
-            view.open();
+            final TreeViewer viewer = new TreeViewer(null, null) {
+                @Override
+                public TreeForTreeLayout<Tree> getTreeLayoutAdaptor(final Tree root) {
+                    return new FilterTree(root, node -> {
+                        if (node instanceof TerminalNode) {
+                            final int type = ((TerminalNode) node).getSymbol().getType();
+                            return LLexer.DO != type
+                                    && LLexer.THEN != type
+                                    && LLexer.BEGIN != type
+                                    && LLexer.END != type
+                                    && LLexer.LEFT != type
+                                    && LLexer.RIGHT != type
+                                    && LLexer.SEMICOLON != type;
+                        }
+                        return true;
+                    });
+                }
+            };
+            viewer.setTreeTextProvider(new Labels());
+            viewer.setTree(tree);
+            viewer.open();
         } catch (IOException e) {
             throw new RuntimeException("Oops!", e);
         }

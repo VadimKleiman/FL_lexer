@@ -20,7 +20,7 @@ fragment UNSIGNED_FLOAT	:	('0'..'9')+ '.' ('0'..'9')* Exponent?
 			                | ('0'..'9')+ Exponent;
 fragment Exponent	:	('e'|'E') ('+' | '-')? ('0'..'9')+;
 ML_COMMENT      : '(*' ('('*? ML_COMMENT | ('('* | '*'*) ~[/*])*? '*'*? '*)' -> skip;
-COMMENT         : '//'[^\n\r] ->skip;
+COMMENT         : '//' ~[\r\n]* '\r'? '\n' ->skip;
 ASSIGN	        :	':=';
 ADD	            :	'+';
 SUB	            :	'-';
@@ -41,11 +41,10 @@ RIGHT	        :	')';
 SEMICOLON	    :	';';
 NL	            :	[ \t\r\n] -> skip;
 OTHER	        :	.;
-
-programm : statement EOF;
+programm : statement_t EOF;
+statement_t: statement (SEMICOLON statement)*;
 statement : PASS
             | assignStatement
-            | statement SEMICOLON statement
             | writeStatement
             | readStatement
             | selectionStatement;
