@@ -125,13 +125,11 @@ public class Main {
                     return new FilterTree(root, node -> {
                         if (node instanceof TerminalNode) {
                             final int type = ((TerminalNode) node).getSymbol().getType();
-                            return LLexer.DO != type
-                                    && LLexer.THEN != type
-                                    && LLexer.BEGIN != type
-                                    && LLexer.END != type
-                                    && LLexer.LEFT != type
-                                    && LLexer.RIGHT != type
-                                    && LLexer.SEMICOLON != type;
+                            return LLexer.PASS == type ||
+                                    LLexer.BOOL == type
+                                    || LLexer.VALUE == type
+                                    || LLexer.ID == type
+                                    || (LLexer.ADD <= type && type <= LLexer.AND);
                         }
                         return true;
                     });

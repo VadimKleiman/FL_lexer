@@ -18,6 +18,16 @@ public interface LListener extends ParseTreeListener {
 	 */
 	void exitProgramm(LParser.ProgrammContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link LParser#statement_t}.
+	 * @param ctx the parse tree
+	 */
+	void enterStatement_t(LParser.Statement_tContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link LParser#statement_t}.
+	 * @param ctx the parse tree
+	 */
+	void exitStatement_t(LParser.Statement_tContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link LParser#statement}.
 	 * @param ctx the parse tree
 	 */
